@@ -5,7 +5,7 @@ from sqlalchemy.orm import DeclarativeMeta, declarative_base, class_mapper
 from sqlalchemy.ext.asyncio import AsyncAttrs
 
 
-from src_external.config import Settings
+from src.models.core.config import Settings
 
 settings = Settings()
 

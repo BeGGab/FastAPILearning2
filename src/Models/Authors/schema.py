@@ -2,7 +2,7 @@ import uuid
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 from typing import Optional, List, Dict
 
-from src.Models.Authors.model import BiographyAuthor
+from src.models.authors.model import BiographyAuthor
 
 
 class SBiographerCreate(BaseModel):

@@ -2,10 +2,11 @@ import uuid
 import httpx
 from pydantic import ValidationError
 
-from src.config import Settings
+from src.models.core.config import Settings
 
-from src.Models.Client.schema import AuthorPayload
-from src.Models.exception.client_exception import NotFoundError, ValidationError as AppValidationError
+from src.models.client.schema import AuthorPayload
+from src.models.exception.client_exception import NotFoundError, ValidationError as AppValidationError
+
 
 
 class AuthorServiceClient:

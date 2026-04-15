@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 
-from src.db import Base
+from src.models.core.db import Base
 
 metadata = sa.MetaData()
 

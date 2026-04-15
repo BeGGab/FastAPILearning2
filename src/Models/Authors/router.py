@@ -1,52 +1,50 @@
 import uuid
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import Response
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Dict, List
-
-from src.Models.Authors.schema import (
+from src.models.authors.schema import (
     SBiographerCreate,
     SBiographerRead,
     SBiographerUpdate,
 )
-from src.Models.Authors.service import BiographyService
-
-from src.db import get_async_session
-
+from src.models.core.dependencis import get_biography_service
+from src.models.authors.service import BiographyService
 
 router = APIRouter(prefix="/api/v1/biographies", tags=["biographies"])
 
 
+
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def created_biography(
-    payload: SBiographerCreate, session: AsyncSession = Depends(get_async_session)
+    payload: SBiographerCreate,
+    service: BiographyService = Depends(get_biography_service),
 ) -> SBiographerRead:
-    return await BiographyService(session=session).create_biography(
-        biography_data=payload
-    )
+    return await service.create_biography(biography_data=payload)
 
 
 @router.get("/{author_id}", status_code=status.HTTP_206_PARTIAL_CONTENT)
 async def get_biography(
-    author_id: uuid.UUID, session: AsyncSession = Depends(get_async_session)
+    author_id: uuid.UUID,
+    service: BiographyService = Depends(get_biography_service),
 ) -> SBiographerRead:
-    return await BiographyService(session).find_one_or_none_by_author_id(author_id=author_id)
+    return await service.find_one_or_none_by_author_id(author_id=author_id)
 
 
 @router.put("/{biography_id}", status_code=status.HTTP_201_CREATED)
 async def updated_biography(
     biography_id: uuid.UUID,
     payload: SBiographerUpdate,
-    session: AsyncSession = Depends(get_async_session),
+    service: BiographyService = Depends(get_biography_service),
 ) -> SBiographerRead:
-    return await BiographyService(session).update_biography(
+    return await service.update_biography(
         biography_id=biography_id, biography_data=payload
     )
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def deleted_biography(
-    id: uuid.UUID, session: AsyncSession = Depends(get_async_session)
+    id: uuid.UUID,
+    service: BiographyService = Depends(get_biography_service),
 ):
-    await BiographyService(session).delete_biography(biography_id=id)
+    await service.delete_biography(biography_id=id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

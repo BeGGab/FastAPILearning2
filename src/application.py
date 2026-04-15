@@ -4,10 +4,9 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from src_external.exception.exception_handlers import setup_exception_handlers
-from src_external.ExternalAuthors.router import router as author_router
-from src_external.ExternalStudents.router import router as student_router
-from src_external.ExternalUsers.router import router as user_router
+from src.models.exception.exception_handlers import setup_exception_handlers
+from src.models.authors.router import router as author_router
+
 
 
 def setup_logging() -> None:
@@ -36,8 +35,6 @@ def get_app() -> FastAPI:
     )
     logger.info("Запуск приложения")
     app.include_router(author_router)
-    app.include_router(student_router)
-    app.include_router(user_router)
     setup_exception_handlers(app)
     return app
 

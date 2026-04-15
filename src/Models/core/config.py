@@ -1,4 +1,4 @@
-import os
+import pathlib
 
 from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings
@@ -10,4 +10,4 @@ class Settings(BaseSettings):
     main_service_timeout_seconds: float = Field(default=5.0, env="main_service_timeout_seconds")
 
     class Config:
-        env_file = os.path.join(os.path.dirname(__file__), ".env")
+        env_file = pathlib.Path(__file__).parent.parent.parent / ".env"

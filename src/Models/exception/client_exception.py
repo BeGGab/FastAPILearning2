@@ -1,4 +1,4 @@
-from src.Models.exception.base import BaseHTTPException
+from src.models.exception.base import BaseHTTPException
 from fastapi import status
 
 

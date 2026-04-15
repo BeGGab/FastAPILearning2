@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from typing import List, Dict, Any, Optional, Union
-from src.Models.exception.exception import ErrorDetail, ErrorResponse
+from src.models.exception.exception import ErrorDetail, ErrorResponse
 
 
 class BaseHTTPException(HTTPException):
