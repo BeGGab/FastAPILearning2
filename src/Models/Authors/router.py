@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/v1/biographies", tags=["biographies"])
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def created_biography(
+async def create_biography(
     payload: SBiographerCreate,
     service: BiographyService = Depends(get_biography_service),
 ) -> SBiographerRead:

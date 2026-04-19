@@ -29,18 +29,8 @@ class BiographyService:
     async def create_biography(
         self, biography_data: SBiographerCreate
     ) -> SBiographerRead:
-        try:
-            verified_author_id = await self.author_service_client.validate_author(
-                biography_data.author_id
-            )
-        except httpx.RequestError as exc:
-            logger.error("Ошибка сети при обращении к сервису авторов", exc_info=True)
-            raise ValidationError(
-                detail="Не удалось проверить автора в сервисе авторов"
-            ) from exc
-
         enriched_biography_data = biography_data.model_copy(
-            update={"author_id": verified_author_id}
+            update={"author_id": biography_data.author_id}
         )
         biography = await self.repository.created(enriched_biography_data)
         if not biography:
