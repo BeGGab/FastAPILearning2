@@ -1,4 +1,4 @@
-from src.models.exception.base import BaseHTTPException
+from src.models.core.exception.base import BaseHTTPException
 from fastapi import status
 from typing import List, Dict, Any
 

@@ -30,21 +30,3 @@ async def get_biography(
     return await service.find_one_or_none_by_author_id(author_id=author_id)
 
 
-@router.put("/{biography_id}", status_code=status.HTTP_201_CREATED)
-async def updated_biography(
-    biography_id: uuid.UUID,
-    payload: SBiographerUpdate,
-    service: BiographyService = Depends(get_biography_service),
-) -> SBiographerRead:
-    return await service.update_biography(
-        biography_id=biography_id, biography_data=payload
-    )
-
-
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def deleted_biography(
-    id: uuid.UUID,
-    service: BiographyService = Depends(get_biography_service),
-):
-    await service.delete_biography(biography_id=id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)

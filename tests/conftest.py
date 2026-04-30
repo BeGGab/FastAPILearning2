@@ -4,55 +4,81 @@ import os
 from urllib.parse import urlparse, urlunparse
 
 import pytest
+import pytest_asyncio
 from docker.errors import DockerException
 from httpx import ASGITransport, AsyncClient
 from testcontainers.postgres import PostgresContainer
-import src.models.core.config as core_config
-import src.models.core.db as db_mod 
+import src.models.authors.model  
 
-import src.models.authors.model
-
-from src.application import get_app
-from src.models.client.author_client import AuthorServiceClient
+from src.application import get_app  
 from src.models.core.db import Base, async_session_maker, engine
+
 _POSTGRES: PostgresContainer | None = None
 _DATABASE_READY = False
 
 
 def _dsn_asyncpg(url: str) -> str:
-    """Testcontainers часто отдаёт postgresql+psycopg2:// — для async SQLAlchemy нужен +asyncpg."""
     parsed = urlparse(url)
     if parsed.scheme == "postgresql+asyncpg":
-        return url
-    if parsed.scheme in ("postgresql", "postgres") or parsed.scheme.startswith("postgresql+"):
+        out = url
+    elif parsed.scheme in ("postgresql", "postgres") or parsed.scheme.startswith("postgresql+"):
         path = parsed.path or "/"
-        return urlunparse(("postgresql+asyncpg", parsed.netloc, path, "", "", ""))
-    return url
+        out = urlunparse(("postgresql+asyncpg", parsed.netloc, path, "", "", ""))
+    else:
+        return url
+    parsed = urlparse(out)
+    if parsed.hostname in ("localhost", "::1"):
+        port = f":{parsed.port}" if parsed.port else ""
+        auth = ""
+        if parsed.username is not None:
+            auth = parsed.username
+            if parsed.password is not None:
+                auth += f":{parsed.password}"
+            auth += "@"
+        netloc = f"{auth}127.0.0.1{port}"
+        out = urlunparse((parsed.scheme, netloc, parsed.path, "", "", ""))
+    return out
 
 
-try:
-    _POSTGRES = PostgresContainer("postgres:16-alpine")
-    _POSTGRES.start()
-    os.environ["postgres_url"] = _dsn_asyncpg(_POSTGRES.get_connection_url())
-    os.environ.setdefault("main_service_url", "http://127.0.0.1:9")
-    _DATABASE_READY = True
-except (DockerException, ConnectionError, OSError):
-    os.environ["postgres_url"] = (
-        "postgresql+asyncpg://postgres:postgres@127.0.0.1:65534/__pytest_placeholder__"
-    )
-    os.environ.setdefault("main_service_url", "http://127.0.0.1:9")
+def _bootstrap_postgres() -> None:
+    global _POSTGRES, _DATABASE_READY
+    try:
+        _POSTGRES = PostgresContainer("postgres:16-alpine")
+        _POSTGRES.start()
+        os.environ["postgres_url"] = _dsn_asyncpg(_POSTGRES.get_connection_url())
+        os.environ.setdefault("main_service_url", "http://127.0.0.1:9")
+        _DATABASE_READY = True
+    except (DockerException, ConnectionError, OSError):
+        _POSTGRES = None
+        _DATABASE_READY = False
+        os.environ["postgres_url"] = (
+            "postgresql+asyncpg://postgres:postgres@127.0.0.1:65534/__pytest_placeholder__"
+        )
+        os.environ.setdefault("main_service_url", "http://127.0.0.1:9")
+
+
+_bootstrap_postgres()
 
 
 
-pytestmark = pytest.mark.skipif(
-    not _DATABASE_READY,
-    reason="Нужен запущенный Docker (Testcontainers Postgres).",
-)
+def pytest_collection_modifyitems(config, items) -> None:  
+    if not _DATABASE_READY:
+        skip = pytest.mark.skip(
+            reason="Нужен запущенный Docker (Testcontainers Postgres).",
+        )
+        for item in items:
+            item.add_marker(skip)
 
 
-@pytest.fixture(scope="session", autouse=True)
+def pytest_sessionfinish(session, exitstatus):  
+    global _POSTGRES
+    if _POSTGRES is not None:
+        _POSTGRES.stop()
+        _POSTGRES = None
+
+
+@pytest_asyncio.fixture(scope="session", loop_scope="session", autouse=True)
 async def database_schema() -> None:
-    """Схема и остановка контейнера в одном event loop с async-тестами (без asyncio.run при импорте)."""
     if not _DATABASE_READY:
         yield
         return
@@ -60,31 +86,21 @@ async def database_schema() -> None:
         await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
-    if _POSTGRES is not None:
-        _POSTGRES.stop()
 
 
-@pytest.fixture(scope="session")
-def app(database_schema):
+@pytest_asyncio.fixture(scope="session", loop_scope="session")
+async def app(database_schema):
     return get_app()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture(loop_scope="session")
 async def async_client(app):
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture(loop_scope="session")
 async def biography_session(database_schema):
     async with async_session_maker() as session:
         yield session
-
-
-@pytest.fixture(autouse=True)
-def mock_author_service_client(monkeypatch: pytest.MonkeyPatch) -> None:
-    async def validate_author(self, author_id): 
-        return author_id
-
-    monkeypatch.setattr(AuthorServiceClient, "validate_author", validate_author)
