@@ -1,9 +1,8 @@
-from src.models.core.exception.base import BaseHTTPException
+from src.models.core.base import BaseHTTPException
 from fastapi import status
 
 
 class BadRequestError(BaseHTTPException):
-    # 400 Bad Request
 
     def __init__(
         self,
@@ -20,7 +19,6 @@ class BadRequestError(BaseHTTPException):
 
 
 class NotFoundError(BaseHTTPException):
-    # 404 Not Found
 
     def __init__(
         self, detail: str = "Ресурс не найден", error_code: str = "not_found", **context
@@ -34,7 +32,6 @@ class NotFoundError(BaseHTTPException):
 
 
 class ConflictError(BaseHTTPException):
-    # 409 Conflict
 
     def __init__(
         self,
@@ -51,7 +48,6 @@ class ConflictError(BaseHTTPException):
 
 
 class ValidationError(BadRequestError):
-    # 422 Validation Error (для Pydantic)
     def __init__(
         self,
         detail: str = "Ошибка валидации",

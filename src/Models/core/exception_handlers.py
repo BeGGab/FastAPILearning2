@@ -1,11 +1,10 @@
 import logging
-from typing import Union
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import UJSONResponse
 
-from src.models.core.exception.base import BaseHTTPException
+from src.models.core.base import BaseHTTPException
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +15,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
     async def http_exception_handler(
         request: Request, exc: BaseHTTPException
     ) -> UJSONResponse:
-        # оброботчик кастомных исключений
         if exc.status_code != status.HTTP_404_NOT_FOUND:
             logger.warning(
                 f"Ошибка {exc.status_code}: {exc.detail}",
@@ -27,7 +25,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
                     **exc.context,
                 },
             )
-        # Преобразуем Pydantic модель в словарь, чтобы datetime и другие типы корректно сериализовались
         content = jsonable_encoder(exc.detail)
         return UJSONResponse(status_code=exc.status_code, content=content)
 
@@ -35,7 +32,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
     async def validation_exception_handler(
         request: Request, exc: RequestValidationError
     ) -> UJSONResponse:
-        # обработчик ошибок валидации запросов
 
         errors = []
         for error in exc.errors():
@@ -61,7 +57,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(404)
     async def not_found_handler(request: Request, exc: Exception) -> UJSONResponse:
-        # обработка ошибки 404
         logger.info(f"ошибка 404: {request.url.path}", extra={"method": request.method})
 
         return UJSONResponse(
@@ -76,7 +71,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
     async def generic_exception_handler(
         request: Request, exc: Exception
     ) -> UJSONResponse:
-        # обработчик остальных исключений
 
         logger.error(
             f"Необработанная ошибка: {str(exc)}",

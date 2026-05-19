@@ -1,10 +1,8 @@
-from src.models.core.exception.base import BaseHTTPException
+from src.models.core.base import BaseHTTPException
 from fastapi import status
-from typing import List, Dict, Any
 
 
 class InternalServerError(BaseHTTPException):
-    # 500 Internal Server Error
 
     def __init__(
         self,
@@ -21,7 +19,6 @@ class InternalServerError(BaseHTTPException):
 
 
 class ServiceUnavailableError(BaseHTTPException):
-    # 503 Service Unavailable
     def __init__(
         self,
         detail: str = "Сервис недоступен",

@@ -1,10 +1,9 @@
 from fastapi import HTTPException
 from typing import List, Dict, Any, Optional, Union
-from src.models.core.exception.exception import ErrorDetail, ErrorResponse
+from src.models.core.exception import ErrorDetail, ErrorResponse
 
 
 class BaseHTTPException(HTTPException):
-    # Базовое Исключение с доп деталями
 
     def __init__(
         self,
@@ -21,7 +20,6 @@ class BaseHTTPException(HTTPException):
         self.format_detail()
 
     def format_detail(self) -> None:
-        # Формируем детали в структурированный вид
         if isinstance(self.detail, str):
             self.detail = ErrorResponse(
                 message=self.detail,

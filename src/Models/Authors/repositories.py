@@ -27,11 +27,3 @@ class BiographyRepository:
         result = await self.session.execute(query)
         return result.scalar_one_or_none()
 
-    async def update(
-        self, biography_id: uuid.UUID, biography_data: SBiographerUpdate
-    ) -> Optional[BiographyAuthor]:
-        biography = await self.get_by_id(biography_id)
-        if biography is None:
-            return None
-        biography_data.apply_updates(biography)
-        return biography
