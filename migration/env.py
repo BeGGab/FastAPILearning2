@@ -1,9 +1,7 @@
 import asyncio
 from logging.config import fileConfig
-from src_external.db import Base
-from src_external.ExternalAuthors.model import BiographyAuthor
-from src_external.ExternalStudents.model import BiographyStudent
-from src_external.ExternalUsers.model import BioUser
+from src.models.core.db import Base
+from src.models.authors.model import BiographyAuthor  # noqa: F401
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
