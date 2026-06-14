@@ -6,7 +6,7 @@ from src.models.authors.repositories import BiographyRepository
 from src.models.authors.schema import SBiographerCreate, SBiographerUpdate  
 from src.models.authors.service import BiographyService
 
-from src.models.core.exception.client_exception import NotFoundError
+from src.models.core.exception import NotFoundError
 
 
 @pytest.mark.asyncio
