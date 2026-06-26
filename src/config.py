@@ -10,4 +10,4 @@ class Settings(BaseSettings):
     main_service_timeout_seconds: float = Field(default=5.0, env="main_service_timeout_seconds")
 
     class Config:
-        env_file = pathlib.Path(__file__).parent.parent.parent / ".env"
+        env_file = pathlib.Path(__file__).parent / ".env"

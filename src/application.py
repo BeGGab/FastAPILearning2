@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from src.models.core.exception import setup_exception_handlers
+from src.exception import setup_exception_handlers
 from src.models.authors.router import router as author_router
 
 

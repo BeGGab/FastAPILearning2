@@ -12,7 +12,7 @@ from src.models.authors.schema import (
 
 from src.models.authors.repositories import BiographyRepository
 
-from src.models.core.exception import NotFoundError, ValidationError
+from src.exception import NotFoundError, ValidationError
 
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.authors.service import BiographyService
 from src.models.authors.repositories import BiographyRepository
-from src.models.core.db import get_async_session
+from src.db import get_async_session
 
 
 async def get_biography_service(

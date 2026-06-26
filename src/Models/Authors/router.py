@@ -6,7 +6,7 @@ from src.models.authors.schema import (
     SBiographerRead,
     SBiographerUpdate,
 )
-from src.models.core.dependencis import get_biography_service
+from src.dependencis import get_biography_service
 from src.models.authors.service import BiographyService
 
 router = APIRouter(prefix="/api/v1/biographies", tags=["biographies"])

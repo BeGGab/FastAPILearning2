@@ -8,12 +8,12 @@ from testcontainers.postgres import PostgresContainer
 from src.models.authors.model import Base
 from alembic.config import Config
 from alembic import command
-from src.models.core.config import Settings
+from src.config import Settings
 
 settings = Settings()
 
 from src.application import get_app  
-from src.models.core.db import async_session_maker, engine
+from src.db import async_session_maker, engine
 
 _POSTGRES: PostgresContainer | None = None
 
