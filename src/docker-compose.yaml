@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: postgres1
+      POSTGRES_DB: postgres1
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - 3306:5432
