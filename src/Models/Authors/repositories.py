@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.authors.model import BiographyAuthor
 
-from src.models.authors.schema import SBiographerCreate, SBiographerUpdate
+from src.models.authors.schema import SBiographerCreate
 
 
 class BiographyRepository:
@@ -15,6 +15,9 @@ class BiographyRepository:
 
     async def created(self, biography_data: SBiographerCreate) -> BiographyAuthor:
         biography = biography_data.to_orm_model()
+        self.session.add(biography)
+        await self.session.flush()
+        await self.session.refresh(biography)
         return biography
 
     async def get_by_author_id(self, author_id: uuid.UUID) -> Optional[BiographyAuthor]:
